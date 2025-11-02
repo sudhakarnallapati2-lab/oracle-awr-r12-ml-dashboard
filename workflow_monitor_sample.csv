@@ -1,0 +1,6 @@
+item_type,item_key,begin_date,end_date,duration_minutes,activity_name,activity_status,notification_status
+PO,PO-1001,2025-10-28 09:00:00,2025-10-28 09:10:00,10,Approve,Completed,SENT
+PO,PO-1002,2025-10-29 10:00:00,2025-10-29 12:30:00,150,Approve,Completed,SENT
+PO,PO-1003,2025-10-30 11:00:00,2025-11-01 11:00:00,2880,Approve,Pending,NONE
+PO,PO-1004,2025-11-01 09:00:00,2025-11-01 09:05:00,5,Approve,Completed,SENT
+PO,PO-1005,2025-11-01 10:00:00,2025-11-01 10:20:00,20,Review,Completed,SENT
