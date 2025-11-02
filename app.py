@@ -14,58 +14,36 @@ st.title("🔎 Oracle Monitoring — AWR & R12 Workflow (ML-backed)")
 # -----------------------------
 # Helper loaders
 # -----------------------------
-@st.cache_data(ttl=300)
+@st.cache_data
 def load_awr_summary():
     try:
-        conn = cx_Oracle.connect(
-            ORACLE_CONFIG['username'],
-            ORACLE_CONFIG['password'],
-            ORACLE_CONFIG['dsn']
-        )
-        query = """SELECT SNAP_ID,
-                       BEGIN_INTERVAL_TIME,
-                       SUM(DB_CPU_TIME_DELTA) AS DB_CPU,
-                       SUM(DB_TIME_DELTA) AS DB_TIME,
-                       SUM(EXECUTIONS_DELTA) AS EXECS,
-                       SUM(BUFFER_GETS_DELTA) AS BUFFER_GETS,
-                       SUM(PHYSICAL_READS_DELTA) AS PHYS_READS
-                FROM DBA_HIST_SQLSTAT A
-                JOIN DBA_HIST_SNAPSHOT B USING (SNAP_ID)
-                WHERE ROWNUM <= 500
-                GROUP BY SNAP_ID, BEGIN_INTERVAL_TIME
-                ORDER BY SNAP_ID"""
-        df = pd.read_sql(query, conn)
-        conn.close()
-        st.success("Loaded AWR summary from Oracle DB")
-        return df
+        return pd.read_csv(CSV_PATH_AWR["summary"])
     except Exception as e:
-        st.warning(f"Oracle AWR DB load failed: {e}")
-        st.info("Loading AWR from CSV fallback")
-        return pd.read_csv(CSV_PATH_AWR)
-
-@st.cache_data(ttl=300)
-def load_awr_sql_details():
+        st.error(f"Error loading AWR summary CSV: {e}")
+        return pd.DataFrame()
+@st.cache_data
+def load_awr_sql():
     try:
-        conn = cx_Oracle.connect(
-            ORACLE_CONFIG['username'],
-            ORACLE_CONFIG['password'],
-            ORACLE_CONFIG['dsn']
-        )
-        query = """SELECT SNAP_ID,
-                           SQL_ID,
-                           ELAPSED_TIME_DELTA/1000000 AS ELAPSED_SEC,
-                           EXECUTIONS_DELTA AS EXECUTIONS,
-                           BUFFER_GETS_DELTA AS BUFFER_GETS,
-                           PHYSICAL_READS_DELTA AS PHYS_READS
-                    FROM DBA_HIST_SQLSTAT
-                    WHERE ROWNUM <= 1000
-                    ORDER BY SNAP_ID"""
-        df = pd.read_sql(query, conn)
-        conn.close()
-        return df
-    except Exception:
-        # fallback sample
-        return pd.read_csv(CSV_PATH_AWR.replace('.csv', '_sql.csv'))
+        return pd.read_csv(CSV_PATH_AWR["sql"])
+    except Exception as e:
+        st.error(f"Error loading AWR SQL CSV: {e}")
+        return pd.DataFrame()
+
+@st.cache_data
+def load_awr_waits():
+    try:
+        return pd.read_csv(CSV_PATH_AWR["waits"])
+    except Exception as e:
+        st.error(f"Error loading AWR waits CSV: {e}")
+        return pd.DataFrame()
+
+@st.cache_data
+def load_workflow():
+    try:
+        return pd.read_csv(CSV_PATH_R12)
+    except Exception as e:
+        st.error(f"Error loading workflow CSV: {e}")
+        return pd.DataFrame()
 
 @st.cache_data(ttl=300)
 def load_workflow_data():
