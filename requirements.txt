@@ -1,6 +1,6 @@
+oracledb
 streamlit
 pandas
-numpy
+matplotlib
 scikit-learn
-cx_Oracle
-altair
+plotly
